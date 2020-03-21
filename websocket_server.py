@@ -12,14 +12,21 @@ USERS = set()
 async def register(client):
     logging.info(f"New user: {client}")
     USERS.add(client)
+    notify_number_users(client)
 
 async def unregister(client):
     USERS.remove(client)
+    notify_number_users(client)
 
 async def notify_users(sender, msg):
     if len(USERS) > 1:  # asyncio.wait doesn't accept an empty list
         logging.info(f"sending: {msg}")
         await asyncio.wait([user.ws.send(msg) for user in USERS if user != sender])
+
+async def notify_number_users(sender):
+    msg = f"number:{len(USERS)}"
+    if USERS:  # asyncio.wait doesn't accept an empty list
+        await asyncio.wait([user.ws.send(msg) for user in USERS])
 
 async def counter(websocket, path):
     print(path.split("/"))
