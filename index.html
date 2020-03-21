@@ -1,0 +1,72 @@
+
+<button id="bt">Click to start loading the episode :)</button>
+<video id="video" height="500" preload="auto" src="video.mp4" onplay="play();" onpause="pause();" style="visibility: hidden"></video>
+
+<script>
+let video = document.getElementById("video");
+let ws = new WebSocket("wss://server:port/");
+ws.onmessage = function (event) {
+    if (event.data == "play") {
+	disableEvents();
+        video.play();
+    	enableEvents();
+    } else if (event.data == "pause") {
+	disableEvents();
+        video.pause();
+	enableEvents();
+    } else if (event.data == "nocontrols") {
+        video.removeAttribute("controls");
+    } else if (event.data == "controls") {
+        video.setAttribute("controls", "");
+    } else if (event.data.startsWith("seeked")) {
+        disableEvents();
+        var time = parseFloat(event.data.split(":")[1])
+        if (Math.abs(video.currentTime - time) > 2) {
+	    video.currentTime = time;
+            video.play();
+        }
+	enableEvents();
+    };
+};
+
+function disableEvents(seeked) {
+        if (seeked)
+		video.onseeked = function () {};
+        video.onpause = function() {};
+        video.onplay = function() {};
+};
+
+function enableEvents() {
+	video.onplay = function() {
+	    console.log("PLAY");
+	    ws.send("play");
+	};
+
+	video.onpause = function() {
+	    console.log("PAUSE");
+	    ws.send("pause");
+	};
+
+	video.onseeked = function () {
+	    console.log("SEEKED");
+	    ws.send("seeked:"+ video.currentTime);
+	    enableEvents();
+	};
+
+	video.onseeking = function () {
+	    console.log("SEEKING");
+	    disableEvents(false);
+	};
+
+};
+
+let bt = document.getElementById("bt");
+bt.onclick = function () {
+    bt.remove();
+    video.removeAttribute("style");
+};
+
+enableEvents();
+</script>
+
+
