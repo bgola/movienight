@@ -35,23 +35,16 @@ async def counter(websocket, path):
     finally:
         await unregister(websocket)
 
-import ssl
-import pathlib
-
-ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-
-localhost_pem = None
-
 try:
     import local_cert_settings
+    import ssl
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     ssl_context.load_cert_chain(
             local_cert_settings.localhost_pem,
             local_cert_settings.privkey_pem)
     asyncio.get_event_loop().run_until_complete(
         websockets.serve(counter, '0.0.0.0', 5678, ssl=ssl_context, max_size=None))
 except ImportError:
-    #localhost_pem = "/etc/letsencrypt/fullchain.pem"
-    #ssl_context.load_cert_chain(localhost_pem, "/etc/letsencrypt/privkey.pem")
     asyncio.get_event_loop().run_until_complete(
         websockets.serve(counter, '0.0.0.0', 5678))
 
