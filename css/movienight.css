@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+}
+
+p {
+    margin-left: 10px;
+}
+
+button {
+    background-color: black;
+    margin: 10px;
+    color: white;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#btFullscreen {
+    position: absolute;
+    left: 50%;
+    top: 1%;
+    transform: translate(-50%,0%);
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 1000;
+    -webkit-transform: translate(-50%,0%);
+    -ms-transform: translate(-50%,0%);
+    -moz-transform: translate(-50%,0%);
+}
+
+.reaction {
+    position: absolute;
+    z-index: 1000;
+    top: 100%;
+    right: 7%;
+    animation: go-up 3s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes go-up {
+  from {top: 93%; opacity: 1;}
+  to {top: 0%; opacity: 0;}
+}

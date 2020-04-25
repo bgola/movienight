@@ -1,76 +1,29 @@
-<button id="bt">Click to start loading the episode :)</button>
-<video id="video" height="500" preload="auto" src="video.mp4" onplay="play();" onpause="pause();" style="visibility: hidden"></video>
-<h3>Number of people watching: <span id="number">1</span></h3>
+<html>
+    <head>
+        <link rel="stylesheet" href="css/movienight.css">
+    </head>
+    <body>
+        <div id="buttons" style="width: 100%; margin: auto">
+            <center>
+            <button id="btHD">Watch in high quality</button>
+            <button id="btLD">Watch in lower quality</button>
+            <button id="btCHD">Watch celebrity in high quality</button>
+            <button id="btCLD">Watch celebrity in lower quality</button>
+            </center>
+        </div>
 
-<script>
-let video = document.getElementById("video");
-let ws = new WebSocket("wss://server:port/");
-ws.onmessage = function (event) {
-    if (event.data == "play") {
-	disableEvents();
-        video.play();
-    	enableEvents();
-    } else if (event.data == "pause") {
-	disableEvents();
-        video.pause();
-	enableEvents();
-    } else if (event.data == "nocontrols") {
-        video.removeAttribute("controls");
-    } else if (event.data.startsWith("number")) {
-        var number = event.data.split(":")[1];
-        var el = document.getElementById("number");
-        el.textContent = number
-    } else if (event.data == "controls") {
-        video.setAttribute("controls", "");
-    } else if (event.data.startsWith("seeked")) {
-        disableEvents();
-        var time = parseFloat(event.data.split(":")[1])
-        if (Math.abs(video.currentTime - time) > 2) {
-	    video.currentTime = time;
-            video.play();
-        }
-	enableEvents();
-    };
-};
-
-function disableEvents(seeked) {
-        if (seeked)
-		video.onseeked = function () {};
-        video.onpause = function() {};
-        video.onplay = function() {};
-};
-
-function enableEvents() {
-	video.onplay = function() {
-	    console.log("PLAY");
-	    ws.send("play");
-	};
-
-	video.onpause = function() {
-	    console.log("PAUSE");
-	    ws.send("pause");
-	};
-
-	video.onseeked = function () {
-	    console.log("SEEKED");
-	    ws.send("seeked:"+ video.currentTime);
-	    enableEvents();
-	};
-
-	video.onseeking = function () {
-	    console.log("SEEKING");
-	    disableEvents(false);
-	};
-
-};
-
-let bt = document.getElementById("bt");
-bt.onclick = function () {
-    bt.remove();
-    video.removeAttribute("style");
-};
-
-enableEvents();
-</script>
+        <div id="info" style="visibility: hidden;">
+            <p>People watching: <span id="number">1</span></p>
+            <p>To send reactions press: (<strong>A</strong>)ngry, (<strong>H</strong>)aha, (<strong>L</strong>)ove, (<strong>S</strong>)ad, (<strong>W</strong>)ow, (<strong>M</strong>)eh, (<strong>R</strong>)oll Eyes, wt(<strong>F</strong>)</p>
+        </div>
+        <div id="videoContainer" style="height: 90%; width: 100%; visibility: hidden">
+          <button id="btFullscreen">fullscreen</button>
+          <video id="video" height="100%" width="100%" preload="auto" onplay="play();" onpause="pause();" controls>
+          </video>
+        </div>
 
 
+        <script src="js/movienight.js"></script>
+    </body>
+    </head>
+</html>
