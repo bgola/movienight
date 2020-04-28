@@ -16,7 +16,7 @@ let reactions = {
     "s": "sad",
     "m": "meh",
     "r": "rolleyes",
-    "f": "wtf"
+    "q": "question-mark"
 };
 
 
