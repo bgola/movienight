@@ -1,13 +1,6 @@
 let video = document.getElementById("video");
 let videoContainer = document.getElementById("videoContainer");
 let ws;
-
-if (location.protocol === 'https:') {
-    ws = new WebSocket("wss://bgo.la:5678/");
-} else {
-    ws = new WebSocket("ws://localhost:5678/");
-}
-
 let reactions = {
     "l": "love",
     "a": "angry",
@@ -20,37 +13,57 @@ let reactions = {
 };
 
 
-ws.onmessage = function (event) {
-    console.log("Received event: " + event.data);
-    if (event.data == "play") {
-	    disableEvents();
-        video.play();
-    	enableEvents();
-    } else if (event.data == "pause") {
-	    disableEvents();
-        video.pause();
-	    enableEvents();
-    } else if (event.data == "nocontrols") {
-        video.removeAttribute("controls");
-    } else if (event.data.startsWith("number")) {
-        var number = event.data.split(":")[1];
-        var el = document.getElementById("number");
-        el.textContent = number
-    } else if (event.data == "controls") {
-        video.setAttribute("controls", "");
-    } else if (event.data.startsWith("seeked")) {
-        disableEvents();
-        var time = parseFloat(event.data.split(":")[1])
-        if (Math.abs(video.currentTime - time) > 2) {
-	    video.currentTime = time;
+function connect() {
+    if (location.protocol === 'https:') {
+        ws = new WebSocket("wss://bgo.la:5678/");
+    } else {
+        ws = new WebSocket("ws://localhost:5678/");
+    }
+
+    ws.onmessage = function (event) {
+        console.log("Received event: " + event.data);
+        if (event.data == "play") {
+            disableEvents();
             video.play();
-        }
-	    enableEvents();
-    } else if (reactions[event.data] != null) {
-        add_reaction(reactions[event.data]);
+            enableEvents();
+        } else if (event.data == "pause") {
+            disableEvents();
+            video.pause();
+            enableEvents();
+        } else if (event.data == "nocontrols") {
+            video.removeAttribute("controls");
+        } else if (event.data.startsWith("number")) {
+            var number = event.data.split(":")[1];
+            var el = document.getElementById("number");
+            el.textContent = number
+        } else if (event.data == "controls") {
+            video.setAttribute("controls", "");
+        } else if (event.data.startsWith("seeked")) {
+            disableEvents();
+            var time = parseFloat(event.data.split(":")[1])
+            if (Math.abs(video.currentTime - time) > 2) {
+            video.currentTime = time;
+                video.play();
+            }
+            enableEvents();
+        } else if (reactions[event.data] != null) {
+            add_reaction(reactions[event.data]);
+        };
+    };  
+
+    ws.onclose = function(e) {
+        setTimeout(function() {
+          connect();
+        }, 1000);
+    };
+
+    ws.onerror = function(err) {
+        //console.error('Socket encountered error: ', err.message, 'Closing socket');
+        ws.close();
     };
 };
-   
+
+connect();
 
 let isFullscreen = false;
 function gofullscreen() {
